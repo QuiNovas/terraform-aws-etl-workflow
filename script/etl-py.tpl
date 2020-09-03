@@ -45,7 +45,7 @@ file_path = "${s3_prefix}/year=" + \
     str(working_year) + "/month=" + str(working_month)
 full_file_path = "s3://" + bucket_name + "/" + file_path
 
-optimal_file_size = 512  # in MB. Used for partitioning
+optimal_partition_size = ${optimal_partition_size}  # in MB. Used for partitioning
 temp_prefix = str(uuid.uuid4())
 
 
@@ -64,7 +64,7 @@ def get_size(path):
 dynamic_frame_read = glue_context.create_dynamic_frame.from_options(
     connection_type="s3",
     connection_options={"paths": [full_file_path]},
-    format="${datalake_input_type}",
+    format="${datalake_format}",
    transformation_ctx = "dynamic_frame_read"
 )
 
@@ -72,7 +72,7 @@ dynamic_frame_read = glue_context.create_dynamic_frame.from_options(
 folder_size = get_size(file_path)
 print('folder-size: ', folder_size, 'mb')
 
-number_of_partitions = math.ceil(folder_size/optimal_file_size)
+number_of_partitions = math.ceil(folder_size/optimal_partition_size)
 print('number_of_partitions: ', number_of_partitions)
 
 dynamic_frame_write = dynamic_frame_read.coalesce(number_of_partitions)
@@ -80,22 +80,22 @@ print('Total row count: ', dynamic_frame_write.count())
 
 
 ## LOAD ##
-# Write large ${datalake_input_type} files to a temp folder in S3
+# Write large ${datalake_format} files to a temp folder in S3
 glue_context.write_dynamic_frame.from_options(
     frame=dynamic_frame_write,
     connection_type="s3",
     connection_options={
         "path": "s3://" + bucket_name + "/" + temp_prefix + "/"
     },
-    format="${datalake_input_type}"
+    format="${datalake_format}"
 )
 
-# Delete all small ${datalake_input_type} files from working folder
+# Delete all small ${datalake_format} files from working folder
 for obj in bucket.objects.filter(Prefix=file_path):
     print(obj.key)
     obj.delete()
 
-# copy compacted ${datalake_input_type} files from temp folder to working folder
+# copy compacted ${datalake_format} files from temp folder to working folder
 for obj in bucket.objects.filter(Prefix=temp_prefix + "/"):
     print(obj.key)
     copy_source = {

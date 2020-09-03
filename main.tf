@@ -3,7 +3,7 @@ resource "aws_glue_workflow" "compaction_etl" {
 }
 
 resource "aws_glue_trigger" "compaction_etl_start" {
-  name          = "${var.prefix}-compaction-etl-trigger"
+  name          = "${var.prefix}-scheduled-trigger"
   workflow_name = aws_glue_workflow.compaction_etl.name
 
   schedule = var.cron_schedule
@@ -17,7 +17,7 @@ resource "aws_glue_trigger" "compaction_etl_start" {
 }
 
 resource "aws_glue_trigger" "compaction_etl_end" {
-  name          = "trigger-crawler"
+  name          = "${var.prefix}-trigger-crawler"
   type          = "CONDITIONAL"
   workflow_name = aws_glue_workflow.compaction_etl.name
 

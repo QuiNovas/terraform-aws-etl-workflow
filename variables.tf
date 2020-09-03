@@ -27,9 +27,10 @@ variable "datalake_prefix" {
   default     = ""
 }
 
-variable "datalake_input_type" {
+variable "datalake_format" {
   description = "The format of input data. ORC or Parquet"
   type        = string
+  default     = ""
 }
 
 variable "crawler_name" {
@@ -88,4 +89,10 @@ variable "cron_schedule" {
   description = "CRON for scheduling the workflow. Defaults to 12AM first of every month"
   type        = string
   default     = "cron(00 00 1 * ? *)" #First of every month at 12AM
+}
+
+variable "optimal_partition_size" {
+  description = "Optimal partition sizing of your data sets. Defaults to 512mb"
+  type        = number
+  default     = 512
 }
