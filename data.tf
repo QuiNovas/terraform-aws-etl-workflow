@@ -1,6 +1,6 @@
 data "template_file" "script" {
   count    = var.script_location == "" ? 1 : 0
-  template = file("${path.module}/script/etl-py.tpl")
+  template = file("${path.module}/script/compaction-etl-py.tpl")
   vars = {
     datalake_bucket        = var.datalake_bucket
     s3_prefix              = var.datalake_prefix

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 
 # ETL Job scheduled on 1st of every month to
-# consolidate/compaction of last month data
+# consolidate/compaction of last month data (either in ORC or Parquet)
 
 # Import python modules
 from datetime import datetime

@@ -1,29 +1,29 @@
-resource "aws_glue_workflow" "compaction_etl" {
-  name = "${var.prefix}-compaction-etl"
+resource "aws_glue_workflow" "etl" {
+  name = "${var.prefix}-etl"
 }
 
-resource "aws_glue_trigger" "compaction_etl_start" {
+resource "aws_glue_trigger" "etl_start" {
   name          = "${var.prefix}-scheduled-trigger"
-  workflow_name = aws_glue_workflow.compaction_etl.name
+  workflow_name = aws_glue_workflow.etl.name
 
   schedule = var.cron_schedule
   type     = "SCHEDULED"
 
   actions {
-    job_name = aws_glue_job.compaction_etl_job.name
+    job_name = aws_glue_job.etl_job.name
   }
 
   tags = var.tags
 }
 
-resource "aws_glue_trigger" "compaction_etl_end" {
+resource "aws_glue_trigger" "etl_end" {
   name          = "${var.prefix}-trigger-crawler"
   type          = "CONDITIONAL"
-  workflow_name = aws_glue_workflow.compaction_etl.name
+  workflow_name = aws_glue_workflow.etl.name
 
   predicate {
     conditions {
-      job_name = aws_glue_job.compaction_etl_job.name
+      job_name = aws_glue_job.etl_job.name
       state    = "SUCCEEDED"
     }
   }
@@ -36,7 +36,7 @@ resource "aws_glue_trigger" "compaction_etl_end" {
 }
 
 ## ETL Job ##
-resource "aws_glue_job" "compaction_etl_job" {
+resource "aws_glue_job" "etl_job" {
   command {
     script_location = local.script_location
     python_version  = 3
@@ -54,7 +54,7 @@ resource "aws_glue_job" "compaction_etl_job" {
   glue_version      = var.glue_version
   max_retries       = var.max_retries
   timeout           = var.job_timeout
-  name              = "${var.prefix}-compaction-etl-job"
+  name              = "${var.prefix}-etl-job"
   number_of_workers = var.number_of_workers
   worker_type       = var.worker_type
   role_arn          = var.role_arn
