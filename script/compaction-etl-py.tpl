@@ -45,8 +45,9 @@ file_path = "${s3_prefix}/year=" + \
     str(working_year) + "/month=" + str(working_month)
 full_file_path = "s3://" + bucket_name + "/" + file_path
 
-optimal_partition_size = ${optimal_partition_size}  # in MB. Used for partitioning
-temp_prefix = str(uuid.uuid4())
+# in MB. Used for partitioning
+optimal_partition_size = ${optimal_partition_size}
+temp_prefix = "${s3_prefix}/"+str(uuid.uuid4())
 
 
 # Calculate size of all files in mb
@@ -65,7 +66,7 @@ dynamic_frame_read = glue_context.create_dynamic_frame.from_options(
     connection_type="s3",
     connection_options={"paths": [full_file_path]},
     format="${datalake_format}",
-   transformation_ctx = "dynamic_frame_read"
+    transformation_ctx="dynamic_frame_read"
 )
 
 ## TRANSFORM ##
@@ -85,7 +86,7 @@ glue_context.write_dynamic_frame.from_options(
     frame=dynamic_frame_write,
     connection_type="s3",
     connection_options={
-        "path": "s3://" + bucket_name + "/" + ${s3_prefix} +"/" + temp_prefix + "/"
+        "path": "s3://" + bucket_name + "/" + temp_prefix + "/"
     },
     format="${datalake_format}"
 )
