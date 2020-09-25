@@ -4,9 +4,9 @@ variable "crawler_name" {
 }
 
 variable "cron_schedule" {
-  description = "CRON for scheduling the workflow. Defaults to 12AM first of every month"
+  description = "CRON for scheduling the workflow. Defaults to 12:30AM first of every month"
   type        = string
-  default     = "cron(00 00 1 * ? *)" #First of every month at 12AM
+  default     = "cron(30 0 1 * ? *)" #First of every month at 12:30AM
 }
 
 variable "datalake_bucket" {
@@ -79,7 +79,13 @@ variable "script_location" {
 }
 
 variable "script_s3_bucket" {
-  description = "S3 bucket name to upload TF supplied ETL script. Required to use Compaction ETL script that is managed by this module"
+  description = "S3 Bucket that script will be uploaded. Required to use Compaction ETL script that is managed by this module"
+  type        = string
+  default     = ""
+}
+
+variable "script_s3_prefix" {
+  description = "S3 prefix to upload TF supplied ETL script. Required to use Compaction ETL script that is managed by this module"
   type        = string
   default     = ""
 }
