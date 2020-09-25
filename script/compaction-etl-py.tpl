@@ -85,7 +85,7 @@ glue_context.write_dynamic_frame.from_options(
     frame=dynamic_frame_write,
     connection_type="s3",
     connection_options={
-        "path": "s3://" + bucket_name + "/" + temp_prefix + "/"
+        "path": "s3://" + bucket_name + "/" + ${s3_prefix} +"/" + temp_prefix + "/"
     },
     format="${datalake_format}"
 )

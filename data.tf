@@ -12,6 +12,6 @@ data "template_file" "script" {
 resource "aws_s3_bucket_object" "script" {
   count   = var.script_location == "" ? 1 : 0
   bucket  = var.script_s3_bucket
-  key     = "terraform/pyspark/compaction-etl-${var.datalake_format}.py"
+  key     = "${var.script_s3_prefix}/compaction-etl-${var.datalake_format}.py"
   content = data.template_file.script.0.rendered
 }
