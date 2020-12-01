@@ -41,23 +41,12 @@ else:
 bucket_name = "${datalake_bucket}"
 bucket = s3.Bucket(bucket_name)
 
-file_path = "${s3_prefix}/year=" + \
-    str(working_year) + "/month=" + str(working_month)
-full_file_path = "s3://" + bucket_name + "/" + file_path
+file_path = f"${s3_prefix}/year={str(working_year)}/month={str(working_month)}"
+full_file_path = f"s3://{bucket_name}/{file_path}"
 
 # in MB. Used for partitioning
 optimal_partition_size = ${optimal_partition_size}
-temp_prefix = "${s3_prefix}/"+str(uuid.uuid4())
-
-
-# Calculate size of all files in mb
-def get_size(path):
-    total_size = 0
-
-    for obj in bucket.objects.filter(Prefix=path):
-        total_size = total_size + obj.size
-
-    return round(total_size/1024/1024, 3)
+temp_prefix = f"${s3_prefix}/{str(uuid.uuid4())}"
 
 
 ## EXTRACT ##
@@ -69,9 +58,20 @@ dynamic_frame_read = glue_context.create_dynamic_frame.from_options(
     transformation_ctx="dynamic_frame_read"
 )
 
+# Calculate size of all files in mb
+def get_size(path):
+    total_size = 0
+
+    for obj in bucket.objects.filter(Prefix=path):
+        total_size = total_size + obj.size
+
+    return round(total_size/1024/1024, 3)
+
+
 ## TRANSFORM ##
 folder_size = get_size(file_path)
 print('folder-size: ', folder_size, 'mb')
+
 
 number_of_partitions = math.ceil(folder_size/optimal_partition_size)
 print('number_of_partitions: ', number_of_partitions)
@@ -86,14 +86,13 @@ glue_context.write_dynamic_frame.from_options(
     frame=dynamic_frame_write,
     connection_type="s3",
     connection_options={
-        "path": "s3://" + bucket_name + "/" + temp_prefix + "/"
+        "path": f"s3://{bucket_name}/{temp_prefix}/"
     },
     format="${datalake_format}"
 )
 
 # Delete all small ${datalake_format} files from working folder
 for obj in bucket.objects.filter(Prefix=file_path):
-    print(obj.key)
     obj.delete()
 
 # copy compacted ${datalake_format} files from temp folder to working folder
@@ -103,7 +102,7 @@ for obj in bucket.objects.filter(Prefix=temp_prefix + "/"):
         'Bucket': bucket_name,
         'Key': obj.key
     }
-    bucket.copy(copy_source, file_path + "/" + obj.key.split("/")[1])
+    bucket.copy(copy_source, f"{file_path}/{obj.key.split('/')[2]}")
 
 # cleanup temp files
 for obj in bucket.objects.filter(Prefix=temp_prefix):
