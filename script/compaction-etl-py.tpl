@@ -47,7 +47,7 @@ full_file_path = "s3://" + bucket_name + "/" + file_path
 
 # in MB. Used for partitioning
 optimal_partition_size = ${optimal_partition_size}
-temp_prefix = "${s3_prefix}/"+str(uuid.uuid4())
+temp_prefix = f"${s3_prefix}/{str(uuid.uuid4())}.${datalake_format}"
 
 
 # Calculate size of all files in mb
