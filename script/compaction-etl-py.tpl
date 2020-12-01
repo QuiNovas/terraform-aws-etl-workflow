@@ -58,10 +58,6 @@ dynamic_frame_read = glue_context.create_dynamic_frame.from_options(
     transformation_ctx="dynamic_frame_read"
 )
 
-## TRANSFORM ##
-folder_size = get_size(file_path)
-print('folder-size: ', folder_size, 'mb')
-
 # Calculate size of all files in mb
 def get_size(path):
     total_size = 0
@@ -70,6 +66,12 @@ def get_size(path):
         total_size = total_size + obj.size
 
     return round(total_size/1024/1024, 3)
+
+
+## TRANSFORM ##
+folder_size = get_size(file_path)
+print('folder-size: ', folder_size, 'mb')
+
 
 number_of_partitions = math.ceil(folder_size/optimal_partition_size)
 print('number_of_partitions: ', number_of_partitions)
@@ -91,7 +93,6 @@ glue_context.write_dynamic_frame.from_options(
 
 # Delete all small ${datalake_format} files from working folder
 for obj in bucket.objects.filter(Prefix=file_path):
-    print(obj.key)
     obj.delete()
 
 # copy compacted ${datalake_format} files from temp folder to working folder
@@ -101,7 +102,7 @@ for obj in bucket.objects.filter(Prefix=temp_prefix + "/"):
         'Bucket': bucket_name,
         'Key': obj.key
     }
-    bucket.copy(copy_source, f"{file_path}/{obj.key.split('/')[2]")
+    bucket.copy(copy_source, f"{file_path}/{obj.key.split('/')[2]}")
 
 # cleanup temp files
 for obj in bucket.objects.filter(Prefix=temp_prefix):
