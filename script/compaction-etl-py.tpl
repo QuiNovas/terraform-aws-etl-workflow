@@ -101,7 +101,7 @@ for obj in bucket.objects.filter(Prefix=temp_prefix + "/"):
         'Bucket': bucket_name,
         'Key': obj.key
     }
-    bucket.copy(copy_source, f"{file_path}/{obj.key.split('/')[1]")
+    bucket.copy(copy_source, f"{file_path}/{obj.key.split('/')[2]")
 
 # cleanup temp files
 for obj in bucket.objects.filter(Prefix=temp_prefix):
